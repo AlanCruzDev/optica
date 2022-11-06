@@ -9,6 +9,8 @@ public class Usuario {
 	private String contrasenia;
 	private String telefono;
 	private Date fecha;
+	private boolean status;
+
 	public Usuario() {
 		
 	}
@@ -49,5 +51,11 @@ public class Usuario {
 	}
 	public void setFecha(Date fecha) {
 		this.fecha = fecha;
+	}
+	public boolean isStatus() {
+		return status;
+	}
+	public void setStatus(boolean status) {
+		this.status = status;
 	}
 }
