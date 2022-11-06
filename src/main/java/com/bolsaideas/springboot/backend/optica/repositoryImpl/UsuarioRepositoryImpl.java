@@ -1,4 +1,5 @@
 package com.bolsaideas.springboot.backend.optica.repositoryImpl;
+
 import java.sql.Types;
 import java.text.DateFormat;
 import java.util.Date;
@@ -36,6 +37,8 @@ public class UsuarioRepositoryImpl implements UserRepository {
 	private JdbcTemplate jdbcTemplate;
 	private SimpleJdbcCall simpleJdbcCall;
 	private SimpleJdbcCall _saveusercall;
+	private SimpleJdbcCall _deleteusercall;
+
 	private static final Logger logger = (Logger) org.slf4j.LoggerFactory.getLogger(UserController.class);
 
 	@PostConstruct
@@ -52,17 +55,25 @@ public class UsuarioRepositoryImpl implements UserRepository {
 				.declareParameters(
 						new SqlParameter("_uid", Types.INTEGER),
 						new SqlParameter("_data", Types.VARCHAR));
+
+		_deleteusercall = new SimpleJdbcCall(jdbcTemplate)
+				.withCatalogName("opticaparis")
+				.withFunctionName("DesactivarUsuario")
+				.withoutProcedureColumnMetaDataAccess()
+				.declareParameters(
+						new SqlParameter("_uid", Types.INTEGER));
 	}
 
 	@Override
 	public Usuario findById(Long id) {
 		Usuario user = null;
-		try{
-			user = jdbcTemplate.queryForObject("select U.id, U.nombre ,U.telefono ,U.fecha  from opticaparis.usuario as U where U.id = ?", new UsuarioMapper(),new Object[]{id});
-		}catch(Exception ex){
-			System.out.println(ex.getMessage());
+		try {
+			user = jdbcTemplate.queryForObject(
+					"select U.id, U.nombre ,U.telefono ,U.fecha  from opticaparis.usuario as U where U.id = ? and U.status = true",new UsuarioMapper(), new Object[] { id });
+			return user;
+		} catch (Exception ex) {
+			return user;
 		}
-		return user;
 	}
 
 	@Override
@@ -121,5 +132,26 @@ public class UsuarioRepositoryImpl implements UserRepository {
 			System.out.print(e.getMessage());
 		}
 		return lista;
+	}
+
+	@Override
+	public boolean DeleteUser(Long id) {
+		boolean bandera = false;
+		
+		try {
+			if (id > 0) {
+				SqlParameterSource in = new MapSqlParameterSource()
+						.addValue("_uid", id);
+				_deleteusercall.execute(in);
+				Usuario user = findById(id);
+				if(user == null){
+					bandera = true;
+				}
+			}
+			return bandera;
+		} catch (Exception ex) {
+			System.out.println("" + ex.getMessage());
+			return bandera;
+		}
 	}
 }

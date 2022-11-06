@@ -10,4 +10,5 @@ public interface UserRepository {
 	public List<Usuario> findAll();
 	public Optional<AccesoUser> UserAccess(String user, String password);
 	public List<ResponseError> SaveUsuario(Usuario usuario);
+	public boolean DeleteUser(Long id);
 }
